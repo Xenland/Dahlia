@@ -7,6 +7,11 @@ dahlia_client::dahlia_client(QWidget *parent)
 {
     //Init loaded identity handle string
         currently_loaded_identity = "";
+        currently_loaded_identity_pubkey = "";
+        currently_loaded_identity_keyring_id = 0;
+
+    //Init currently selected chat history by address book db id
+        selected_chat_history_by_addressbook_db_id = 0;
 
     //Init memory trackers
         //Dahlia Jungle
@@ -41,6 +46,12 @@ dahlia_client::dahlia_client(QWidget *parent)
     qDebug() << addressbook_db.lastError();
     db_opened = addressbook_db.open();
     qDebug() << "DB OPENED ADDRESS BOOK" << db_opened;
+
+    textmessagehistory_db = QSqlDatabase::addDatabase("QSQLITE", "messagehistoryDb");
+    textmessagehistory_db.setDatabaseName("./db/textmessage_history");
+    qDebug() << textmessagehistory_db.lastError();
+    db_opened = textmessagehistory_db.open();
+    qDebug() << "DB OPENED TXT MSG HISTORY DB " << db_opened;
 
     //Init
     boot_screen = new QWidget(0);
@@ -98,6 +109,12 @@ dahlia_client::dahlia_client(QWidget *parent)
     //Show boot screen.
     boot_screen->show();
     boot_screen->resize(300, 350);
+
+
+    //Self connections
+        //Update current chat history view
+        connect(this, SIGNAL(update_current_chat_history_view_signal()), this, SLOT(update_current_chat_history_view()));
+
 }
 
 dahlia_client::~dahlia_client()
@@ -133,8 +150,9 @@ void dahlia_client::dahlia_jungle_show(){
                 /*** COLUMN two (goes down two rows) ***/
                 dahlia_jungle_recip_recent_history_tableview = new QTableView(0);
                     //Connections
-                connect(dahlia_jungle_recip_recent_history_tableview, SIGNAL(activated(QModelIndex)), this, SLOT(show_chat_history_by_addressbook_db_id(QModelIndex)));
-                dahlia_jungle_recip_recent_history_tableview->hideColumn(3);
+                    connect(dahlia_jungle_recip_recent_history_tableview, SIGNAL(activated(QModelIndex)), this, SLOT(show_chat_history_by_addressbook_db_id(QModelIndex)));
+
+                    dahlia_jungle_recip_recent_history_tableview->setColumnHidden(2,true);
                 dahlia_jungle_recip_recent_history_tableview->setMaximumWidth(250);
                 dahlia_jungle_recip_recent_history_tableview_itemmodel = new QStandardItemModel(0,3,0);
                 dahlia_jungle_recip_recent_history_tableview_itemmodel->setHorizontalHeaderItem(0, new QStandardItem(QString("Status")));
@@ -155,6 +173,9 @@ void dahlia_client::dahlia_jungle_show(){
                     dahlia_jungle_send_msg_vboxlayout->addWidget(dahlia_jungle_send_msg_input);
 
                     dahlia_jungle_send_msg_btn = new QPushButton("Send Message", 0);
+                        //connections
+                        connect(dahlia_jungle_send_msg_btn, SIGNAL(clicked()), this, SLOT(add_msg_to_send_queue()));
+
                     dahlia_jungle_send_msg_vboxlayout->addWidget(dahlia_jungle_send_msg_btn);
 
                 dahlia_jungle_layout->addWidget(dahlia_jungle_send_msg_container);
@@ -215,7 +236,7 @@ void dahlia_client::start_new_chat_dialog(){
             //Add to recent contacts (if md5, ask server if they can find the matching public key to this md5 handle)
             dahlia_jungle_add_new_contact_to_chat_addbtn = new QPushButton("Connect to contact", 0);
                 //connections
-            connect(dahlia_jungle_add_new_contact_to_chat_addbtn, SIGNAL(clicked()), this, SLOT(attempt_to_connect_to_contact_slot()));
+                connect(dahlia_jungle_add_new_contact_to_chat_addbtn, SIGNAL(clicked()), this, SLOT(attempt_to_connect_to_contact_slot()));
             dahlia_jungle_add_new_contact_to_chat_layout->addWidget(dahlia_jungle_add_new_contact_to_chat_addbtn);
 
          /** Flag already init **/
@@ -233,13 +254,15 @@ void dahlia_client::start_new_chat_dialog(){
 
 void dahlia_client::open_chat_with_local_id(int addressbook_id){
     //Get information on this addressbook_id so we can open/start the chat.
+    QString recip_id = QString("");
     QString display_name = QString("");
     QString md5_handle = QString("");
     QString pubkey = QString("");
 
     QSqlQuery contact_info(addressbook_db);
-    contact_info.exec(QString("SELECT `display_name`, `md5_handle`, `pubkey` FROM `recip_clients` WHERE `id` = '%1' LIMIT 0,1").arg(addressbook_id));
+    contact_info.exec(QString("SELECT `id`, `display_name`, `md5_handle`, `pubkey` FROM `recip_clients` WHERE `id` = '%1' LIMIT 0,1").arg(addressbook_id));
     if(contact_info.first()){
+        recip_id = contact_info.value("id").toString();
         display_name = contact_info.value("display_name").toString();
         md5_handle = contact_info.value("md5_handle").toString();
         pubkey = contact_info.value("pubkey").toString();
@@ -255,7 +278,8 @@ void dahlia_client::open_chat_with_local_id(int addressbook_id){
     //Place extracted data into the table view
     QStandardItem * col_one = new QStandardItem(QString("Offline"));
     QStandardItem * col_two = new QStandardItem(display_contact_as);
-    QStandardItem * col_three = new QStandardItem(QString(addressbook_id));
+        qDebug() << "COL THREE: " << recip_id;
+    QStandardItem * col_three = new QStandardItem(recip_id);
 
     int row_to_insert_on = dahlia_jungle_recip_recent_history_tableview_itemmodel->rowCount();
     dahlia_jungle_recip_recent_history_tableview_itemmodel->setItem(row_to_insert_on, 0, col_one);
@@ -323,14 +347,49 @@ void dahlia_client::show_chat_history_by_addressbook_db_id(QModelIndex cell){
      ** cells' row.
      **/
 
-    QModelIndex addressbook_db_id_cell = dahlia_jungle_recip_recent_history_tableview_itemmodel->index(cell.row(), 3, QModelIndex());
-    int addressbook_db_id = addressbook_db_id_cell.data().toInt();
+    QModelIndex addressbook_db_id_cell = dahlia_jungle_recip_recent_history_tableview_itemmodel->index(cell.row(), 2, QModelIndex());
+    QString addressbook_db_id = addressbook_db_id_cell.data().toString();
 
     //Set chat history browser to this addressbook_db_id
-        //TODO
+    selected_chat_history_by_addressbook_db_id = addressbook_db_id.toInt();
+}
 
-    //Load chat history to this reciepient.
-        //TODO
+void dahlia_client::add_msg_to_send_queue(){
+    /** Attempt to add this message to the send queue db
+     **/
+    QString message_to_add_to_send_queue = dahlia_jungle_send_msg_input->toPlainText();
+
+    QSqlQuery add_sendmsg_query(textmessagehistory_db);
+    add_sendmsg_query.exec(QString("INSERT INTO `send_queue` (`id`, `to_addressbook_id`, `from_keyring_id`, `message_plaintext`) VALUES(NULL, '%1', '%2', '%3')").arg(selected_chat_history_by_addressbook_db_id).arg(currently_loaded_identity_keyring_id).arg(message_to_add_to_send_queue));
+
+    //Emit signal of possible updating the current chat history view.
+    emit update_current_chat_history_view_signal();
+}
+
+void dahlia_client::update_current_chat_history_view(){
+    qDebug() << "UPDATING CURRENT CHAT HISTORY VIEW";
+
+    //Clear.
+
+    //Append/Refresh.
+        int left_off_at_history_row = 0;
+
+        //Query already sent/received message history
+            //TODO^^
+
+        //Query "msg to send queue" and append to end of the history.
+        QSqlQuery msgs_to_send_queue(textmessagehistory_db);
+        msgs_to_send_queue.exec(QString("SELECT `id`, `to_addressbook_id`, `from_keyring_id`, `message_plaintext` FROM `send_queue` ORDER BY `id` ASC"));
+        while(msgs_to_send_queue.next()){
+            QString to_addressbook_id = msgs_to_send_queue.value("to_addressbook_id").toString();
+            QString message = msgs_to_send_queue.value("message_plaintext").toString();
+
+            QStandardItem * col_one = new QStandardItem(message);
+            dahlia_jungle_chat_history_tableview_itemmodel->setItem(left_off_at_history_row,col_one);
+
+            //Match where we left off at.
+            left_off_at_history_row += 1;
+        }
 }
 
 

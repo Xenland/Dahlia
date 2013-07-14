@@ -41,9 +41,13 @@ public:
 private:
 
     /** Vars **/
-        //Currently loaded Identity (By Md5 handle)
-        QString currently_loaded_identity;
+        //Currently loaded Identity
+        QString currently_loaded_identity; //(By Md5 handle)
         QString currently_loaded_identity_pubkey;
+        int currently_loaded_identity_keyring_id;
+
+        //Currently selected to view chat history by addressbook_db_id
+        int selected_chat_history_by_addressbook_db_id;
 
         //memory Trackers
                 //Dahlia Jungle Screen
@@ -69,6 +73,7 @@ private:
         //Sqlite database(s)
             QSqlDatabase identity_db;
             QSqlDatabase addressbook_db;
+            QSqlDatabase textmessagehistory_db;
 
 
         //Dahlia Jungle
@@ -205,6 +210,9 @@ private slots:
 
     void show_chat_history_by_addressbook_db_id(QModelIndex);
 
+    void add_msg_to_send_queue();
+    void update_current_chat_history_view();
+
     /*** Boot Screen ***/
     void boot_new_identity_btn_clicked();
     void boot_load_identity_btn_clicked();
@@ -213,6 +221,10 @@ private slots:
 
         //Connect to Dahila Jungle options
         void connect_to_dahlia_jungle();
+
+
+signals:
+        void update_current_chat_history_view_signal();
 };
 
 #endif // DAHLIA_CLIENT_H
