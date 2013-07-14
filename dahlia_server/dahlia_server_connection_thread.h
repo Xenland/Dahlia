@@ -28,6 +28,9 @@ public:
     
 private:
     /** Vars **/
+        //Client capabilities
+            int capabilities_text;
+
         //Networking
             qintptr clientSocketDescriptor;
 
@@ -35,7 +38,12 @@ private:
             QSqlDatabase global_identities_db;
 
     /** Funcs **/
-    QString respondToClientsCommand(QByteArray * client_response);
+    QString respondToClientsCommand(QByteArray*);
+
+        /*** CLIENT API ***/
+        QString clientapi_req_handshake();
+        QString clientapi_req_client_details(QJsonObject);
+        QString clientapi_req_relay_text(QJsonObject);
 
 signals:
     

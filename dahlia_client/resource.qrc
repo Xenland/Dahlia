@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/img">
+        <file alias="dahlia_logo">img/dahlia.png</file>
+    </qresource>
+    <qresource prefix="/db">
+        <file alias="keyring_db">db/keyring</file>
+    </qresource>
+</RCC>

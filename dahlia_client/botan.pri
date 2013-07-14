@@ -1,0 +1,566 @@
+DEPENDPATH += .
+INCLUDEPATH += $$PWD $$PWD/../build $$PWD/../build/botan
+
+win32 {
+    win32-msvc* {
+        QMAKE_CXXFLAGS += -wd4251 -wd4290 -wd4250
+        DEFINES += BOTAN_DLL=__declspec(dllexport)
+    } else {
+        QMAKE_CFLAGS += -fpermissive -finline-functions -Wno-long-long
+        QMAKE_CXXFLAGS += -fpermissive -finline-functions -Wno-long-long
+    }
+    LIBS += -ladvapi32 -luser32
+}
+
+unix {
+    QMAKE_CFLAGS += -fPIC -ansi -fpermissive -finline-functions -Wno-long-long
+    QMAKE_CXXFLAGS += -fPIC -ansi -fpermissive -finline-functions -Wno-long-long
+    QMAKE_CXXFLAGS_HIDESYMS -= -fvisibility-inlines-hidden # for ubuntu 7.04
+}
+
+# Input
+HEADERS += $$BOTAN_SRC/algo_factory/algo_cache.h \
+        $$BOTAN_SRC/algo_factory/algo_factory.h \
+        $$BOTAN_SRC/alloc/allocate.h \
+        $$BOTAN_SRC/alloc/mem_pool/mem_pool.h \
+        $$BOTAN_SRC/alloc/secmem.h \
+        $$BOTAN_SRC/alloc/system_alloc/defalloc.h \
+        $$BOTAN_SRC/asn1/alg_id.h \
+        $$BOTAN_SRC/asn1/asn1_int.h \
+        $$BOTAN_SRC/asn1/asn1_obj.h \
+        $$BOTAN_SRC/asn1/asn1_oid.h \
+        $$BOTAN_SRC/asn1/ber_dec.h \
+        $$BOTAN_SRC/asn1/der_enc.h \
+        $$BOTAN_SRC/benchmark/benchmark.h \
+        $$BOTAN_SRC/block/aes/aes.h \
+        $$BOTAN_SRC/block/block_cipher.h \
+        $$BOTAN_SRC/block/blowfish/blowfish.h \
+        $$BOTAN_SRC/block/cast/cast128.h \
+        $$BOTAN_SRC/block/cast/cast256.h \
+        $$BOTAN_SRC/block/des/des.h \
+        $$BOTAN_SRC/block/des/desx.h \
+        $$BOTAN_SRC/block/gost_28147/gost_28147.h \
+        $$BOTAN_SRC/block/idea/idea.h \
+        $$BOTAN_SRC/block/kasumi/kasumi.h \
+        $$BOTAN_SRC/block/lion/lion.h \
+        $$BOTAN_SRC/block/lubyrack/lubyrack.h \
+        $$BOTAN_SRC/block/mars/mars.h \
+        $$BOTAN_SRC/block/misty1/misty1.h \
+        $$BOTAN_SRC/block/noekeon/noekeon.h \
+        $$BOTAN_SRC/block/rc2/rc2.h \
+        $$BOTAN_SRC/block/rc5/rc5.h \
+        $$BOTAN_SRC/block/rc6/rc6.h \
+        $$BOTAN_SRC/block/safer/safer_sk.h \
+        $$BOTAN_SRC/block/seed/seed.h \
+        $$BOTAN_SRC/block/serpent/serpent.h \
+        $$BOTAN_SRC/block/skipjack/skipjack.h \
+        $$BOTAN_SRC/block/square/square.h \
+        $$BOTAN_SRC/block/tea/tea.h \
+        $$BOTAN_SRC/block/twofish/twofish.h \
+        $$BOTAN_SRC/block/xtea/xtea.h \
+        $$BOTAN_SRC/cert/x509/certstor.h \
+        $$BOTAN_SRC/cert/x509/crl_ent.h \
+        $$BOTAN_SRC/cert/x509/pkcs10.h \
+        $$BOTAN_SRC/cert/x509/x509_ca.h \
+        $$BOTAN_SRC/cert/x509/x509_crl.h \
+        $$BOTAN_SRC/cert/x509/x509_ext.h \
+        $$BOTAN_SRC/cert/x509/x509_obj.h \
+        $$BOTAN_SRC/cert/x509/x509cert.h \
+        $$BOTAN_SRC/cert/x509/x509find.h \
+        $$BOTAN_SRC/cert/x509/x509self.h \
+        $$BOTAN_SRC/cert/x509/x509stor.h \
+        $$BOTAN_SRC/checksum/adler32/adler32.h \
+        $$BOTAN_SRC/checksum/crc24/crc24.h \
+        $$BOTAN_SRC/checksum/crc32/crc32.h \
+        $$BOTAN_SRC/cms/cms_dec.h \
+        $$BOTAN_SRC/cms/cms_enc.h \
+        $$BOTAN_SRC/codec/base64/base64.h \
+        $$BOTAN_SRC/codec/hex/hex.h \
+        $$BOTAN_SRC/codec/openpgp/openpgp.h \
+        $$BOTAN_SRC/codec/pem/pem.h \
+        $$BOTAN_SRC/cryptobox/cryptobox.h \
+        $$BOTAN_SRC/engine/def_engine/def_eng.h \
+        $$BOTAN_SRC/engine/engine.h \
+        $$BOTAN_SRC/entropy/entropy_src.h \
+        $$BOTAN_SRC/filters/basefilt.h \
+        $$BOTAN_SRC/filters/buf_filt.h \
+        $$BOTAN_SRC/filters/data_snk.h \
+        $$BOTAN_SRC/filters/data_src.h \
+        $$BOTAN_SRC/filters/filter.h \
+        $$BOTAN_SRC/filters/filters.h \
+        $$BOTAN_SRC/filters/out_buf.h \
+        $$BOTAN_SRC/filters/pbe.h \
+        $$BOTAN_SRC/filters/pipe.h \
+        $$BOTAN_SRC/filters/secqueue.h \
+        $$BOTAN_SRC/hash/fork256/fork256.h \
+        $$BOTAN_SRC/hash/gost_3411/gost_3411.h \
+        $$BOTAN_SRC/hash/has160/has160.h \
+        $$BOTAN_SRC/hash/hash.h \
+        $$BOTAN_SRC/hash/md2/md2.h \
+        $$BOTAN_SRC/hash/md4/md4.h \
+        $$BOTAN_SRC/hash/md5/md5.h \
+        $$BOTAN_SRC/hash/mdx_hash/mdx_hash.h \
+        $$BOTAN_SRC/hash/par_hash/par_hash.h \
+        $$BOTAN_SRC/hash/rmd128/rmd128.h \
+        $$BOTAN_SRC/hash/rmd160/rmd160.h \
+        $$BOTAN_SRC/hash/sha1/sha160.h \
+        $$BOTAN_SRC/hash/sha2/sha2_32.h \
+        $$BOTAN_SRC/hash/sha2/sha2_64.h \
+        $$BOTAN_SRC/hash/skein/skein_512.h \
+        $$BOTAN_SRC/hash/tiger/tiger.h \
+        $$BOTAN_SRC/hash/whirlpool/whrlpool.h \
+        $$BOTAN_SRC/kdf/kdf.h \
+        $$BOTAN_SRC/kdf/kdf1/kdf1.h \
+        $$BOTAN_SRC/kdf/kdf2/kdf2.h \
+        $$BOTAN_SRC/kdf/mgf1/mgf1.h \
+        $$BOTAN_SRC/kdf/ssl_prf/prf_ssl3.h \
+        $$BOTAN_SRC/kdf/tls_prf/prf_tls.h \
+        $$BOTAN_SRC/kdf/x942_prf/prf_x942.h \
+        $$BOTAN_SRC/libstate/botan.h \
+        $$BOTAN_SRC/libstate/init.h \
+        $$BOTAN_SRC/libstate/libstate.h \
+        $$BOTAN_SRC/libstate/look_pk.h \
+        $$BOTAN_SRC/libstate/lookup.h \
+        $$BOTAN_SRC/libstate/oid_lookup/oids.h \
+        $$BOTAN_SRC/libstate/pk_engine.h \
+        $$BOTAN_SRC/libstate/scan_name.h \
+        $$BOTAN_SRC/mac/cbc_mac/cbc_mac.h \
+        $$BOTAN_SRC/mac/cmac/cmac.h \
+        $$BOTAN_SRC/mac/hmac/hmac.h \
+        $$BOTAN_SRC/mac/mac.h \
+        $$BOTAN_SRC/mac/ssl3mac/ssl3_mac.h \
+        $$BOTAN_SRC/mac/x919_mac/x919_mac.h \
+        $$BOTAN_SRC/math/bigint/bigint.h \
+        $$BOTAN_SRC/math/bigint/divide.h \
+        $$BOTAN_SRC/math/bigint/mp_core.h \
+        $$BOTAN_SRC/math/bigint/mp_generic/mp_asm.h \
+        $$BOTAN_SRC/math/bigint/mp_generic/mp_asmi.h \
+        $$BOTAN_SRC/math/bigint/mp_types.h \
+        $$BOTAN_SRC/math/numbertheory/blinding.h \
+        $$BOTAN_SRC/math/numbertheory/def_powm.h \
+        $$BOTAN_SRC/math/numbertheory/numthry.h \
+        $$BOTAN_SRC/math/numbertheory/pow_mod.h \
+        $$BOTAN_SRC/math/numbertheory/reducer.h \
+        $$BOTAN_SRC/modes/cbc/cbc.h \
+        $$BOTAN_SRC/modes/cfb/cfb.h \
+        $$BOTAN_SRC/modes/ctr/ctr.h \
+        $$BOTAN_SRC/modes/cts/cts.h \
+        $$BOTAN_SRC/modes/eax/eax.h \
+        $$BOTAN_SRC/modes/ecb/ecb.h \
+        $$BOTAN_SRC/modes/mode_pad/mode_pad.h \
+        $$BOTAN_SRC/modes/modebase.h \
+        $$BOTAN_SRC/modes/ofb/ofb.h \
+        $$BOTAN_SRC/modes/xts/xts.h \
+        $$BOTAN_SRC/mutex/mutex.h \
+        $$BOTAN_SRC/mutex/noop_mutex/mux_noop.h \
+        $$BOTAN_SRC/pbe/get_pbe.h \
+        $$BOTAN_SRC/pbe/pbes1/pbes1.h \
+        $$BOTAN_SRC/pbe/pbes2/pbes2.h \
+        $$BOTAN_SRC/pk_pad/eme.h \
+        $$BOTAN_SRC/pk_pad/eme1/eme1.h \
+        $$BOTAN_SRC/pk_pad/eme_pkcs/eme_pkcs.h \
+        $$BOTAN_SRC/pk_pad/emsa.h \
+        $$BOTAN_SRC/pk_pad/emsa1/emsa1.h \
+        $$BOTAN_SRC/pk_pad/emsa1_bsi/emsa1_bsi.h \
+        $$BOTAN_SRC/pk_pad/emsa2/emsa2.h \
+        $$BOTAN_SRC/pk_pad/emsa3/emsa3.h \
+        $$BOTAN_SRC/pk_pad/emsa4/emsa4.h \
+        $$BOTAN_SRC/pk_pad/emsa_raw/emsa_raw.h \
+        $$BOTAN_SRC/pk_pad/hash_id/hash_id.h \
+        $$BOTAN_SRC/pubkey/dh/dh.h \
+        $$BOTAN_SRC/pubkey/dh/dh_core.h \
+        $$BOTAN_SRC/pubkey/dh/dh_op.h \
+        $$BOTAN_SRC/pubkey/dl_algo/dl_algo.h \
+        $$BOTAN_SRC/pubkey/dl_group/dl_group.h \
+        $$BOTAN_SRC/pubkey/dlies/dlies.h \
+        $$BOTAN_SRC/pubkey/dsa/dsa.h \
+        $$BOTAN_SRC/pubkey/dsa/dsa_core.h \
+        $$BOTAN_SRC/pubkey/dsa/dsa_op.h \
+        $$BOTAN_SRC/pubkey/elgamal/elg_core.h \
+        $$BOTAN_SRC/pubkey/elgamal/elg_op.h \
+        $$BOTAN_SRC/pubkey/elgamal/elgamal.h \
+        $$BOTAN_SRC/pubkey/if_algo/if_algo.h \
+        $$BOTAN_SRC/pubkey/if_algo/if_core.h \
+        $$BOTAN_SRC/pubkey/if_algo/if_op.h \
+        $$BOTAN_SRC/pubkey/keypair/keypair.h \
+        $$BOTAN_SRC/pubkey/nr/nr.h \
+        $$BOTAN_SRC/pubkey/nr/nr_core.h \
+        $$BOTAN_SRC/pubkey/nr/nr_op.h \
+        $$BOTAN_SRC/pubkey/pk_algs.h \
+        $$BOTAN_SRC/pubkey/pk_codecs/pkcs8.h \
+        $$BOTAN_SRC/pubkey/pk_codecs/x509_key.h \
+        $$BOTAN_SRC/pubkey/pk_filts.h \
+        $$BOTAN_SRC/pubkey/pk_keys.h \
+        $$BOTAN_SRC/pubkey/pubkey.h \
+        $$BOTAN_SRC/pubkey/pubkey_enums.h \
+        $$BOTAN_SRC/pubkey/rsa/rsa.h \
+        $$BOTAN_SRC/pubkey/rw/rw.h \
+        $$BOTAN_SRC/rng/auto_rng/auto_rng.h \
+        $$BOTAN_SRC/rng/hmac_rng/hmac_rng.h \
+        $$BOTAN_SRC/rng/randpool/randpool.h \
+        $$BOTAN_SRC/rng/rng.h \
+        $$BOTAN_SRC/rng/x931_rng/x931_rng.h \
+        $$BOTAN_SRC/s2k/pbkdf1/pbkdf1.h \
+        $$BOTAN_SRC/s2k/pbkdf2/pbkdf2.h \
+        $$BOTAN_SRC/s2k/pgps2k/pgp_s2k.h \
+        $$BOTAN_SRC/s2k/s2k.h \
+        $$BOTAN_SRC/selftest/selftest.h \
+        $$BOTAN_SRC/stream/arc4/arc4.h \
+        $$BOTAN_SRC/stream/salsa20/salsa20.h \
+        $$BOTAN_SRC/stream/stream_cipher.h \
+        $$BOTAN_SRC/stream/turing/turing.h \
+        $$BOTAN_SRC/stream/wid_wake/wid_wake.h \
+        $$BOTAN_SRC/sym_algo/sym_algo.h \
+        $$BOTAN_SRC/sym_algo/symkey.h \
+        $$BOTAN_SRC/timer/timer.h \
+        $$BOTAN_SRC/utils/bit_ops.h \
+        $$BOTAN_SRC/utils/bswap.h \
+        $$BOTAN_SRC/utils/buf_comp/buf_comp.h \
+        $$BOTAN_SRC/utils/charset.h \
+        $$BOTAN_SRC/utils/datastor/datastor.h \
+        $$BOTAN_SRC/utils/exceptn.h \
+        $$BOTAN_SRC/utils/loadstor.h \
+        $$BOTAN_SRC/utils/mem_ops.h \
+        $$BOTAN_SRC/utils/parsing.h \
+        $$BOTAN_SRC/utils/rotate.h \
+        $$BOTAN_SRC/utils/stl_util.h \
+        $$BOTAN_SRC/utils/types.h \
+        $$BOTAN_SRC/utils/ui.h \
+        $$BOTAN_SRC/utils/util.h \
+        $$BOTAN_SRC/utils/version.h \
+        $$BOTAN_SRC/utils/xor_buf.h
+
+win32 {
+    HEADERS += $$BOTAN_SRC/entropy/cryptoapi_rng/es_capi.h \
+        $$BOTAN_SRC/entropy/win32_stats/es_win32.h \
+        $$BOTAN_SRC/mutex/win32_crit_section/mux_win32.h \
+        $$BOTAN_SRC/timer/win32_query_perf_ctr/tm_win32.h
+}
+
+unix {
+    HEADERS += $$BOTAN_SRC/alloc/alloc_mmap/mmap_mem.h \
+           $$BOTAN_SRC/cert/cvc/cvc_ado.h \
+           $$BOTAN_SRC/cert/cvc/cvc_ca.h \
+           $$BOTAN_SRC/cert/cvc/cvc_cert.h \
+           $$BOTAN_SRC/cert/cvc/cvc_gen_cert.h \
+           $$BOTAN_SRC/cert/cvc/cvc_key.h \
+           $$BOTAN_SRC/cert/cvc/cvc_req.h \
+           $$BOTAN_SRC/cert/cvc/cvc_self.h \
+           $$BOTAN_SRC/cert/cvc/eac_asn_obj.h \
+           $$BOTAN_SRC/cert/cvc/eac_obj.h \
+           $$BOTAN_SRC/cert/cvc/ecdsa_sig.h \
+           $$BOTAN_SRC/cert/cvc/freestore.h \
+           $$BOTAN_SRC/cert/cvc/signed_obj.h \
+           $$BOTAN_SRC/entropy/dev_random/es_dev.h \
+           $$BOTAN_SRC/entropy/egd/es_egd.h \
+           $$BOTAN_SRC/entropy/proc_walk/es_ftw.h \
+           $$BOTAN_SRC/entropy/unix_procs/es_unix.h \
+           $$BOTAN_SRC/entropy/unix_procs/unix_cmd.h \
+           $$BOTAN_SRC/filters/fd_unix/fd_unix.h \
+           $$BOTAN_SRC/math/gfpmath/curve_gfp.h \
+           $$BOTAN_SRC/math/gfpmath/gfp_element.h \
+           $$BOTAN_SRC/math/gfpmath/gfp_modulus.h \
+           $$BOTAN_SRC/math/gfpmath/point_gfp.h \
+           $$BOTAN_SRC/mutex/pthreads/mux_pthr.h \
+           $$BOTAN_SRC/pubkey/ec_dompar/ec_dompar.h \
+           $$BOTAN_SRC/pubkey/ecc_key/ecc_key.h \
+           $$BOTAN_SRC/pubkey/ecdsa/ecdsa.h \
+           $$BOTAN_SRC/pubkey/ecdsa/ecdsa_core.h \
+           $$BOTAN_SRC/pubkey/ecdsa/ecdsa_op.h \
+           $$BOTAN_SRC/pubkey/eckaeg/eckaeg.h \
+           $$BOTAN_SRC/pubkey/eckaeg/eckaeg_core.h \
+           $$BOTAN_SRC/pubkey/eckaeg/eckaeg_op.h \
+           $$BOTAN_SRC/timer/gettimeofday/tm_unix.h
+}
+
+linux*-g++* {
+    HEADERS += $$BOTAN_SRC/timer/posix_rt/tm_posix.h
+}
+
+SOURCES += $$BOTAN_SRC/algo_factory/algo_factory.cpp \
+        $$BOTAN_SRC/algo_factory/prov_weight.cpp \
+        $$BOTAN_SRC/alloc/mem_pool/mem_pool.cpp \
+        $$BOTAN_SRC/alloc/system_alloc/defalloc.cpp \
+        $$BOTAN_SRC/asn1/alg_id.cpp \
+        $$BOTAN_SRC/asn1/asn1_alt.cpp \
+        $$BOTAN_SRC/asn1/asn1_att.cpp \
+        $$BOTAN_SRC/asn1/asn1_dn.cpp \
+        $$BOTAN_SRC/asn1/asn1_int.cpp \
+        $$BOTAN_SRC/asn1/asn1_oid.cpp \
+        $$BOTAN_SRC/asn1/asn1_str.cpp \
+        $$BOTAN_SRC/asn1/asn1_tm.cpp \
+        $$BOTAN_SRC/asn1/ber_dec.cpp \
+        $$BOTAN_SRC/asn1/der_enc.cpp \
+        $$BOTAN_SRC/benchmark/benchmark.cpp \
+        $$BOTAN_SRC/block/aes/aes.cpp \
+        $$BOTAN_SRC/block/aes/aes_tab.cpp \
+        $$BOTAN_SRC/block/blowfish/blfs_tab.cpp \
+        $$BOTAN_SRC/block/blowfish/blowfish.cpp \
+        $$BOTAN_SRC/block/cast/cast128.cpp \
+        $$BOTAN_SRC/block/cast/cast256.cpp \
+        $$BOTAN_SRC/block/cast/cast_tab.cpp \
+        $$BOTAN_SRC/block/des/des.cpp \
+        $$BOTAN_SRC/block/des/des_tab.cpp \
+        $$BOTAN_SRC/block/des/desx.cpp \
+        $$BOTAN_SRC/block/gost_28147/gost_28147.cpp \
+        $$BOTAN_SRC/block/idea/idea.cpp \
+        $$BOTAN_SRC/block/kasumi/kasumi.cpp \
+        $$BOTAN_SRC/block/lion/lion.cpp \
+        $$BOTAN_SRC/block/lubyrack/lubyrack.cpp \
+        $$BOTAN_SRC/block/mars/mars.cpp \
+        $$BOTAN_SRC/block/mars/mars_tab.cpp \
+        $$BOTAN_SRC/block/misty1/misty1.cpp \
+        $$BOTAN_SRC/block/noekeon/noekeon.cpp \
+        $$BOTAN_SRC/block/rc2/rc2.cpp \
+        $$BOTAN_SRC/block/rc5/rc5.cpp \
+        $$BOTAN_SRC/block/rc6/rc6.cpp \
+        $$BOTAN_SRC/block/safer/safe_tab.cpp \
+        $$BOTAN_SRC/block/safer/safer_sk.cpp \
+        $$BOTAN_SRC/block/seed/seed.cpp \
+        $$BOTAN_SRC/block/seed/seed_tab.cpp \
+        $$BOTAN_SRC/block/serpent/serpent.cpp \
+        $$BOTAN_SRC/block/skipjack/skipjack.cpp \
+        $$BOTAN_SRC/block/square/sqr_tab.cpp \
+        $$BOTAN_SRC/block/square/square.cpp \
+        $$BOTAN_SRC/block/tea/tea.cpp \
+        $$BOTAN_SRC/block/twofish/two_tab.cpp \
+        $$BOTAN_SRC/block/twofish/twofish.cpp \
+        $$BOTAN_SRC/block/xtea/xtea.cpp \
+        $$BOTAN_SRC/cert/x509/certstor.cpp \
+        $$BOTAN_SRC/cert/x509/crl_ent.cpp \
+        $$BOTAN_SRC/cert/x509/pkcs10.cpp \
+        $$BOTAN_SRC/cert/x509/x509_ca.cpp \
+        $$BOTAN_SRC/cert/x509/x509_crl.cpp \
+        $$BOTAN_SRC/cert/x509/x509_ext.cpp \
+        $$BOTAN_SRC/cert/x509/x509_obj.cpp \
+        $$BOTAN_SRC/cert/x509/x509cert.cpp \
+        $$BOTAN_SRC/cert/x509/x509find.cpp \
+        $$BOTAN_SRC/cert/x509/x509opt.cpp \
+        $$BOTAN_SRC/cert/x509/x509self.cpp \
+        $$BOTAN_SRC/cert/x509/x509stor.cpp \
+        $$BOTAN_SRC/checksum/adler32/adler32.cpp \
+        $$BOTAN_SRC/checksum/crc24/crc24.cpp \
+        $$BOTAN_SRC/checksum/crc32/crc32.cpp \
+        $$BOTAN_SRC/cms/cms_algo.cpp \
+        $$BOTAN_SRC/cms/cms_comp.cpp \
+        $$BOTAN_SRC/cms/cms_dalg.cpp \
+        $$BOTAN_SRC/cms/cms_dec.cpp \
+        $$BOTAN_SRC/cms/cms_ealg.cpp \
+        $$BOTAN_SRC/cms/cms_enc.cpp \
+        $$BOTAN_SRC/codec/base64/b64_char.cpp \
+        $$BOTAN_SRC/codec/base64/base64.cpp \
+        $$BOTAN_SRC/codec/hex/hex.cpp \
+        $$BOTAN_SRC/codec/hex/hex_char.cpp \
+        $$BOTAN_SRC/codec/openpgp/openpgp.cpp \
+        $$BOTAN_SRC/codec/pem/pem.cpp \
+        $$BOTAN_SRC/cryptobox/cryptobox.cpp \
+        $$BOTAN_SRC/engine/def_engine/def_mode.cpp \
+        $$BOTAN_SRC/engine/def_engine/def_pk_ops.cpp \
+        $$BOTAN_SRC/engine/def_engine/def_powm.cpp \
+        $$BOTAN_SRC/engine/def_engine/lookup_block.cpp \
+        $$BOTAN_SRC/engine/def_engine/lookup_hash.cpp \
+        $$BOTAN_SRC/engine/def_engine/lookup_mac.cpp \
+        $$BOTAN_SRC/engine/def_engine/lookup_stream.cpp \
+        $$BOTAN_SRC/filters/algo_filt.cpp \
+        $$BOTAN_SRC/filters/basefilt.cpp \
+        $$BOTAN_SRC/filters/buf_filt.cpp \
+        $$BOTAN_SRC/filters/data_snk.cpp \
+        $$BOTAN_SRC/filters/data_src.cpp \
+        $$BOTAN_SRC/filters/filter.cpp \
+        $$BOTAN_SRC/filters/out_buf.cpp \
+        $$BOTAN_SRC/filters/pipe.cpp \
+        $$BOTAN_SRC/filters/pipe_io.cpp \
+        $$BOTAN_SRC/filters/pipe_rw.cpp \
+        $$BOTAN_SRC/filters/secqueue.cpp \
+        $$BOTAN_SRC/hash/fork256/fork256.cpp \
+        $$BOTAN_SRC/hash/gost_3411/gost_3411.cpp \
+        $$BOTAN_SRC/hash/has160/has160.cpp \
+        $$BOTAN_SRC/hash/md2/md2.cpp \
+        $$BOTAN_SRC/hash/md4/md4.cpp \
+        $$BOTAN_SRC/hash/md5/md5.cpp \
+        $$BOTAN_SRC/hash/mdx_hash/mdx_hash.cpp \
+        $$BOTAN_SRC/hash/par_hash/par_hash.cpp \
+        $$BOTAN_SRC/hash/rmd128/rmd128.cpp \
+        $$BOTAN_SRC/hash/rmd160/rmd160.cpp \
+        $$BOTAN_SRC/hash/sha1/sha160.cpp \
+        $$BOTAN_SRC/hash/sha2/sha2_32.cpp \
+        $$BOTAN_SRC/hash/sha2/sha2_64.cpp \
+        $$BOTAN_SRC/hash/skein/skein_512.cpp \
+        $$BOTAN_SRC/hash/tiger/tig_tab.cpp \
+        $$BOTAN_SRC/hash/tiger/tiger.cpp \
+        $$BOTAN_SRC/hash/whirlpool/whrl_tab.cpp \
+        $$BOTAN_SRC/hash/whirlpool/whrlpool.cpp \
+        $$BOTAN_SRC/kdf/kdf.cpp \
+        $$BOTAN_SRC/kdf/kdf1/kdf1.cpp \
+        $$BOTAN_SRC/kdf/kdf2/kdf2.cpp \
+        $$BOTAN_SRC/kdf/mgf1/mgf1.cpp \
+        $$BOTAN_SRC/kdf/ssl_prf/prf_ssl3.cpp \
+        $$BOTAN_SRC/kdf/tls_prf/prf_tls.cpp \
+        $$BOTAN_SRC/kdf/x942_prf/prf_x942.cpp \
+        $$BOTAN_SRC/libstate/get_enc.cpp \
+        $$BOTAN_SRC/libstate/init.cpp \
+        $$BOTAN_SRC/libstate/libstate.cpp \
+        $$BOTAN_SRC/libstate/look_pk.cpp \
+        $$BOTAN_SRC/libstate/lookup.cpp \
+        $$BOTAN_SRC/libstate/oid_lookup/oids.cpp \
+        $$BOTAN_SRC/libstate/pk_engine.cpp \
+        $$BOTAN_SRC/libstate/policy.cpp \
+        $$BOTAN_SRC/libstate/scan_name.cpp \
+        $$BOTAN_SRC/mac/cbc_mac/cbc_mac.cpp \
+        $$BOTAN_SRC/mac/cmac/cmac.cpp \
+        $$BOTAN_SRC/mac/hmac/hmac.cpp \
+        $$BOTAN_SRC/mac/mac.cpp \
+        $$BOTAN_SRC/mac/ssl3mac/ssl3_mac.cpp \
+        $$BOTAN_SRC/mac/x919_mac/x919_mac.cpp \
+        $$BOTAN_SRC/math/bigint/big_code.cpp \
+        $$BOTAN_SRC/math/bigint/big_io.cpp \
+        $$BOTAN_SRC/math/bigint/big_ops2.cpp \
+        $$BOTAN_SRC/math/bigint/big_ops3.cpp \
+        $$BOTAN_SRC/math/bigint/big_rand.cpp \
+        $$BOTAN_SRC/math/bigint/bigint.cpp \
+        $$BOTAN_SRC/math/bigint/divide.cpp \
+        $$BOTAN_SRC/math/bigint/monty_generic/mp_monty.cpp \
+        $$BOTAN_SRC/math/bigint/mp_asm.cpp \
+        $$BOTAN_SRC/math/bigint/mp_comba.cpp \
+        $$BOTAN_SRC/math/bigint/mp_karat.cpp \
+        $$BOTAN_SRC/math/bigint/mp_misc.cpp \
+        $$BOTAN_SRC/math/bigint/mp_shift.cpp \
+        $$BOTAN_SRC/math/bigint/mulop_generic/mp_mulop.cpp \
+        $$BOTAN_SRC/math/numbertheory/blinding.cpp \
+        $$BOTAN_SRC/math/numbertheory/dsa_gen.cpp \
+        $$BOTAN_SRC/math/numbertheory/jacobi.cpp \
+        $$BOTAN_SRC/math/numbertheory/make_prm.cpp \
+        $$BOTAN_SRC/math/numbertheory/mp_numth.cpp \
+        $$BOTAN_SRC/math/numbertheory/numthry.cpp \
+        $$BOTAN_SRC/math/numbertheory/pow_mod.cpp \
+        $$BOTAN_SRC/math/numbertheory/powm_fw.cpp \
+        $$BOTAN_SRC/math/numbertheory/powm_mnt.cpp \
+        $$BOTAN_SRC/math/numbertheory/primes.cpp \
+        $$BOTAN_SRC/math/numbertheory/reducer.cpp \
+        $$BOTAN_SRC/math/numbertheory/ressol.cpp \
+        $$BOTAN_SRC/modes/cbc/cbc.cpp \
+        $$BOTAN_SRC/modes/cfb/cfb.cpp \
+        $$BOTAN_SRC/modes/ctr/ctr.cpp \
+        $$BOTAN_SRC/modes/cts/cts.cpp \
+        $$BOTAN_SRC/modes/eax/eax.cpp \
+        $$BOTAN_SRC/modes/eax/eax_dec.cpp \
+        $$BOTAN_SRC/modes/ecb/ecb.cpp \
+        $$BOTAN_SRC/modes/mode_pad/mode_pad.cpp \
+        $$BOTAN_SRC/modes/modebase.cpp \
+        $$BOTAN_SRC/modes/ofb/ofb.cpp \
+        $$BOTAN_SRC/modes/xts/xts.cpp \
+        $$BOTAN_SRC/mutex/noop_mutex/mux_noop.cpp \
+        $$BOTAN_SRC/pbe/get_pbe.cpp \
+        $$BOTAN_SRC/pbe/pbes1/pbes1.cpp \
+        $$BOTAN_SRC/pbe/pbes2/pbes2.cpp \
+        $$BOTAN_SRC/pk_pad/eme.cpp \
+        $$BOTAN_SRC/pk_pad/eme1/eme1.cpp \
+        $$BOTAN_SRC/pk_pad/eme_pkcs/eme_pkcs.cpp \
+        $$BOTAN_SRC/pk_pad/emsa1/emsa1.cpp \
+        $$BOTAN_SRC/pk_pad/emsa1_bsi/emsa1_bsi.cpp \
+        $$BOTAN_SRC/pk_pad/emsa2/emsa2.cpp \
+        $$BOTAN_SRC/pk_pad/emsa3/emsa3.cpp \
+        $$BOTAN_SRC/pk_pad/emsa4/emsa4.cpp \
+        $$BOTAN_SRC/pk_pad/emsa_raw/emsa_raw.cpp \
+        $$BOTAN_SRC/pk_pad/hash_id/hash_id.cpp \
+        $$BOTAN_SRC/pubkey/dh/dh.cpp \
+        $$BOTAN_SRC/pubkey/dh/dh_core.cpp \
+        $$BOTAN_SRC/pubkey/dl_algo/dl_algo.cpp \
+        $$BOTAN_SRC/pubkey/dl_group/dl_group.cpp \
+        $$BOTAN_SRC/pubkey/dlies/dlies.cpp \
+        $$BOTAN_SRC/pubkey/dsa/dsa.cpp \
+        $$BOTAN_SRC/pubkey/dsa/dsa_core.cpp \
+        $$BOTAN_SRC/pubkey/dsa/dsa_op.cpp \
+        $$BOTAN_SRC/pubkey/elgamal/elg_core.cpp \
+        $$BOTAN_SRC/pubkey/elgamal/elg_op.cpp \
+        $$BOTAN_SRC/pubkey/elgamal/elgamal.cpp \
+        $$BOTAN_SRC/pubkey/if_algo/if_algo.cpp \
+        $$BOTAN_SRC/pubkey/if_algo/if_core.cpp \
+        $$BOTAN_SRC/pubkey/if_algo/if_op.cpp \
+        $$BOTAN_SRC/pubkey/keypair/keypair.cpp \
+        $$BOTAN_SRC/pubkey/nr/nr.cpp \
+        $$BOTAN_SRC/pubkey/nr/nr_core.cpp \
+        $$BOTAN_SRC/pubkey/nr/nr_op.cpp \
+        $$BOTAN_SRC/pubkey/pk_algs.cpp \
+        $$BOTAN_SRC/pubkey/pk_codecs/pkcs8.cpp \
+        $$BOTAN_SRC/pubkey/pk_codecs/x509_key.cpp \
+        $$BOTAN_SRC/pubkey/pk_filts.cpp \
+        $$BOTAN_SRC/pubkey/pk_keys.cpp \
+        $$BOTAN_SRC/pubkey/pubkey.cpp \
+        $$BOTAN_SRC/pubkey/pubkey_enums.cpp \
+        $$BOTAN_SRC/pubkey/rsa/rsa.cpp \
+        $$BOTAN_SRC/pubkey/rw/rw.cpp \
+        $$BOTAN_SRC/rng/auto_rng/auto_rng.cpp \
+        $$BOTAN_SRC/rng/hmac_rng/hmac_rng.cpp \
+        $$BOTAN_SRC/rng/randpool/randpool.cpp \
+        $$BOTAN_SRC/rng/rng.cpp \
+        $$BOTAN_SRC/rng/x931_rng/x931_rng.cpp \
+        $$BOTAN_SRC/s2k/pbkdf1/pbkdf1.cpp \
+        $$BOTAN_SRC/s2k/pbkdf2/pbkdf2.cpp \
+        $$BOTAN_SRC/s2k/pgps2k/pgp_s2k.cpp \
+        $$BOTAN_SRC/s2k/s2k.cpp \
+        $$BOTAN_SRC/selftest/selftest.cpp \
+        $$BOTAN_SRC/stream/arc4/arc4.cpp \
+        $$BOTAN_SRC/stream/salsa20/salsa20.cpp \
+        $$BOTAN_SRC/stream/stream_cipher.cpp \
+        $$BOTAN_SRC/stream/turing/tur_tab.cpp \
+        $$BOTAN_SRC/stream/turing/turing.cpp \
+        $$BOTAN_SRC/stream/wid_wake/wid_wake.cpp \
+        $$BOTAN_SRC/sym_algo/symkey.cpp \
+        $$BOTAN_SRC/timer/timer.cpp \
+        $$BOTAN_SRC/utils/charset.cpp \
+        $$BOTAN_SRC/utils/datastor/datastor.cpp \
+        $$BOTAN_SRC/utils/exceptn.cpp \
+        $$BOTAN_SRC/utils/mlock.cpp \
+        $$BOTAN_SRC/utils/parsing.cpp \
+        $$BOTAN_SRC/utils/ui.cpp \
+        $$BOTAN_SRC/utils/util.cpp \
+        $$BOTAN_SRC/utils/version.cpp
+
+win32 {
+SOURCES += $$BOTAN_SRC/entropy/cryptoapi_rng/es_capi.cpp \
+           $$BOTAN_SRC/entropy/win32_stats/es_win32.cpp \
+           $$BOTAN_SRC/mutex/win32_crit_section/mux_win32.cpp \
+           $$BOTAN_SRC/timer/win32_query_perf_ctr/tm_win32.cpp
+}
+
+unix {
+    SOURCES += $$BOTAN_SRC/alloc/alloc_mmap/mmap_mem.cpp \
+           $$BOTAN_SRC/cert/cvc/asn1_eac_str.cpp \
+           $$BOTAN_SRC/cert/cvc/asn1_eac_tm.cpp \
+           $$BOTAN_SRC/cert/cvc/cvc_ado.cpp \
+           $$BOTAN_SRC/cert/cvc/cvc_ca.cpp \
+           $$BOTAN_SRC/cert/cvc/cvc_cert.cpp \
+           $$BOTAN_SRC/cert/cvc/cvc_req.cpp \
+           $$BOTAN_SRC/cert/cvc/cvc_self.cpp \
+           $$BOTAN_SRC/cert/cvc/ecdsa_sig.cpp \
+           $$BOTAN_SRC/cert/cvc/signed_obj.cpp \
+           $$BOTAN_SRC/entropy/dev_random/es_dev.cpp \
+           $$BOTAN_SRC/entropy/egd/es_egd.cpp \
+           $$BOTAN_SRC/entropy/proc_walk/es_ftw.cpp \
+           $$BOTAN_SRC/entropy/unix_procs/es_unix.cpp \
+           $$BOTAN_SRC/entropy/unix_procs/unix_cmd.cpp \
+           $$BOTAN_SRC/entropy/unix_procs/unix_src.cpp \
+           $$BOTAN_SRC/filters/fd_unix/fd_unix.cpp \
+           $$BOTAN_SRC/math/gfpmath/curve_gfp.cpp \
+           $$BOTAN_SRC/math/gfpmath/gfp_element.cpp \
+           $$BOTAN_SRC/math/gfpmath/point_gfp.cpp \
+           $$BOTAN_SRC/mutex/pthreads/mux_pthr.cpp \
+           $$BOTAN_SRC/pubkey/ec_dompar/ec_dompar.cpp \
+           $$BOTAN_SRC/pubkey/ecc_key/ecc_key.cpp \
+           $$BOTAN_SRC/pubkey/ecdsa/ecdsa.cpp \
+           $$BOTAN_SRC/pubkey/ecdsa/ecdsa_core.cpp \
+           $$BOTAN_SRC/pubkey/ecdsa/ecdsa_op.cpp \
+           $$BOTAN_SRC/pubkey/eckaeg/eckaeg.cpp \
+           $$BOTAN_SRC/pubkey/eckaeg/eckaeg_core.cpp \
+           $$BOTAN_SRC/pubkey/eckaeg/eckaeg_op.cpp \
+           $$BOTAN_SRC/timer/gettimeofday/tm_unix.cpp
+}
+
+linux*-g++* {
+    SOURCES += $$BOTAN_SRC/timer/posix_rt/tm_posix.cpp
+}
+
+linux*-g++* {
+    LIBS += -lrt
+}
