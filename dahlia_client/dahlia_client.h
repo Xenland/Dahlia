@@ -9,6 +9,7 @@
 #include <QDialog>
 #include <QPixmap>
 #include <QTcpSocket>
+#include <QLineEdit>
 #include <QTableView>
 #include <QStandardItemModel>
 #include <QStandardItem>
@@ -118,7 +119,10 @@ private:
                 //Header
                 QLabel * dahlia_jungle_add_new_contact_to_chat_header;
 
-                //Input (MD5 handle or public key)
+                //Displayname
+                QLineEdit * dahlia_jungle_add_new_contact_to_chat_displayname_input;
+
+                //Input (public key)
                 QPlainTextEdit * dahlia_jungle_add_new_contact_to_chat_input;
 
                 //Connect to contact
@@ -187,6 +191,9 @@ private:
                 //Add new contact to talk to.
                 void start_new_chat_dialog();
 
+                //Open new chat dialog box with this contact
+                void open_chat_with_local_id(int);
+
 private slots:
 
     /*** Background Networking Slots ***/
@@ -195,6 +202,8 @@ private slots:
     /*** Dahlia Jungle Screen Slots ***/
     void open_start_new_chat_dialog();
     void attempt_to_connect_to_contact_slot();
+
+    void show_chat_history_by_addressbook_db_id(QModelIndex);
 
     /*** Boot Screen ***/
     void boot_new_identity_btn_clicked();

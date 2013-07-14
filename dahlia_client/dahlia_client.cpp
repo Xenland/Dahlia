@@ -132,10 +132,14 @@ void dahlia_client::dahlia_jungle_show(){
             /** SECOND ROW **/
                 /*** COLUMN two (goes down two rows) ***/
                 dahlia_jungle_recip_recent_history_tableview = new QTableView(0);
+                    //Connections
+                connect(dahlia_jungle_recip_recent_history_tableview, SIGNAL(activated(QModelIndex)), this, SLOT(show_chat_history_by_addressbook_db_id(QModelIndex)));
+                dahlia_jungle_recip_recent_history_tableview->hideColumn(3);
                 dahlia_jungle_recip_recent_history_tableview->setMaximumWidth(250);
-                dahlia_jungle_recip_recent_history_tableview_itemmodel = new QStandardItemModel(0,2,0);
+                dahlia_jungle_recip_recent_history_tableview_itemmodel = new QStandardItemModel(0,3,0);
                 dahlia_jungle_recip_recent_history_tableview_itemmodel->setHorizontalHeaderItem(0, new QStandardItem(QString("Status")));
                 dahlia_jungle_recip_recent_history_tableview_itemmodel->setHorizontalHeaderItem(1, new QStandardItem(QString("Contact Name")));
+                dahlia_jungle_recip_recent_history_tableview_itemmodel->setHorizontalHeaderItem(2, new QStandardItem(QString("addressbook_db_id")));
 
                 dahlia_jungle_recip_recent_history_tableview->setModel(dahlia_jungle_recip_recent_history_tableview_itemmodel);
 
@@ -169,7 +173,8 @@ void dahlia_client::dahlia_jungle_show(){
                 dahlia_jungle_layout->addWidget(dahlia_jungle_options_container);
 
 
-
+            /** Flag already init **/
+            dahlia_jungle_already_init = 1;
 
         //Show
         dahlia_jungle_screen->show();
@@ -199,6 +204,10 @@ void dahlia_client::start_new_chat_dialog(){
             dahlia_jungle_add_new_contact_to_chat_header = new QLabel("<h3>Paste your contacts' public key or MD5 Handle</h3>", 0);
             dahlia_jungle_add_new_contact_to_chat_layout->addWidget(dahlia_jungle_add_new_contact_to_chat_header);
 
+            //Display name
+            dahlia_jungle_add_new_contact_to_chat_displayname_input = new QLineEdit(0);
+            dahlia_jungle_add_new_contact_to_chat_layout->addWidget(dahlia_jungle_add_new_contact_to_chat_displayname_input);
+
             //textbox
             dahlia_jungle_add_new_contact_to_chat_input = new QPlainTextEdit(0);
             dahlia_jungle_add_new_contact_to_chat_layout->addWidget(dahlia_jungle_add_new_contact_to_chat_input);
@@ -209,12 +218,49 @@ void dahlia_client::start_new_chat_dialog(){
             connect(dahlia_jungle_add_new_contact_to_chat_addbtn, SIGNAL(clicked()), this, SLOT(attempt_to_connect_to_contact_slot()));
             dahlia_jungle_add_new_contact_to_chat_layout->addWidget(dahlia_jungle_add_new_contact_to_chat_addbtn);
 
+         /** Flag already init **/
+         dahlia_jungle_new_contact_dialog_already_init = 1;
+
         //Show
         dahlia_jungle_add_new_contact_to_chat->show();
 
     }else{
-
+        //Show
+        dahlia_jungle_add_new_contact_to_chat->show();
     }
+}
+
+
+void dahlia_client::open_chat_with_local_id(int addressbook_id){
+    //Get information on this addressbook_id so we can open/start the chat.
+    QString display_name = QString("");
+    QString md5_handle = QString("");
+    QString pubkey = QString("");
+
+    QSqlQuery contact_info(addressbook_db);
+    contact_info.exec(QString("SELECT `display_name`, `md5_handle`, `pubkey` FROM `recip_clients` WHERE `id` = '%1' LIMIT 0,1").arg(addressbook_id));
+    if(contact_info.first()){
+        display_name = contact_info.value("display_name").toString();
+        md5_handle = contact_info.value("md5_handle").toString();
+        pubkey = contact_info.value("pubkey").toString();
+    }
+
+    QString display_contact_as = QString("");
+    if(display_name != ""){
+        display_contact_as = display_name;
+    }else{
+        display_contact_as = md5_handle;
+    }
+
+    //Place extracted data into the table view
+    QStandardItem * col_one = new QStandardItem(QString("Offline"));
+    QStandardItem * col_two = new QStandardItem(display_contact_as);
+    QStandardItem * col_three = new QStandardItem(QString(addressbook_id));
+
+    int row_to_insert_on = dahlia_jungle_recip_recent_history_tableview_itemmodel->rowCount();
+    dahlia_jungle_recip_recent_history_tableview_itemmodel->setItem(row_to_insert_on, 0, col_one);
+    dahlia_jungle_recip_recent_history_tableview_itemmodel->setItem(row_to_insert_on, 1, col_two);
+    dahlia_jungle_recip_recent_history_tableview_itemmodel->setItem(row_to_insert_on, 2, col_three);
 }
 
 
@@ -230,10 +276,21 @@ void dahlia_client::open_start_new_chat_dialog(){
 
 void dahlia_client::attempt_to_connect_to_contact_slot(){
     //If this public key isn't found locally add it; open the chat, if this is a md5 handle, ask the server for the public key, save it, then open the chat.
-        //Public key in addressbook?
+            QString displayname_to_pubkey = dahlia_jungle_add_new_contact_to_chat_displayname_input->text();
+
             QString public_key_input_stripped_down = dahlia_jungle_add_new_contact_to_chat_input->toPlainText();
             public_key_input_stripped_down.replace(QString("\n"), QString(""));
+            public_key_input_stripped_down.replace(QString("-----BEGIN PUBLIC KEY-----"), QString(""));
+            public_key_input_stripped_down.replace(QString("-----END PUBLIC KEY-----"), QString(""));
+            qDebug() << public_key_input_stripped_down;
 
+            //MD5 handle
+            QByteArray public_key_input_stripped_down_256_handle = QCryptographicHash::hash(public_key_input_stripped_down.toUtf8(), QCryptographicHash::Sha256);
+            QString public_key_input_stripped_down_md5_handle = QString(QCryptographicHash::hash(public_key_input_stripped_down_256_handle, QCryptographicHash::Md5).toHex()).toUtf8();
+            qDebug() << "MD5 --- " << public_key_input_stripped_down_md5_handle;
+
+
+        //Public key in addressbook?
         QSqlQuery public_key_exists(addressbook_db);
         public_key_exists.exec(QString("SELECT `id` FROM `recip_clients` WHERE `pubkey` = '%1' LIMIT 0,1").arg(public_key_input_stripped_down));
 
@@ -241,12 +298,12 @@ void dahlia_client::attempt_to_connect_to_contact_slot(){
             int public_key_local_id_int = public_key_exists.value(0).toInt();
 
             //Open chat with this local id int
-                //TODO ^^
+            open_chat_with_local_id(public_key_local_id_int);
         }else{
             //Add this public key to the address book, then open chat with this local id int
                 //Add pubkey to addressbook
             QSqlQuery add_public_key(addressbook_db);
-            add_public_key.exec(QString("INSERT INTO `recip_clients` (`id`, `display_name`, `pubkey`, `md5_handle`) VALUES(NULL, '', '%1', '')").arg(public_key_input_stripped_down));
+            add_public_key.exec(QString("INSERT INTO `recip_clients` (`id`, `display_name`, `pubkey`, `md5_handle`) VALUES(NULL, '%1', '%2', '%3')").arg(displayname_to_pubkey).arg(public_key_input_stripped_down).arg(public_key_input_stripped_down_md5_handle));
             qDebug() << "INSERT ID ERROR: " << add_public_key.lastError();
             add_public_key.exec(QString("SELECT last_insert_rowid()"));
             qDebug() << "INSERT ID CONTACT ADDRRD BOOK " << add_public_key.lastError();
@@ -254,8 +311,28 @@ void dahlia_client::attempt_to_connect_to_contact_slot(){
             int public_key_local_id_int = add_public_key.value(0).toInt();
 
             qDebug() << "OPENING CHAT WITH CONTACT ID: " << public_key_local_id_int;
+
+            //Open chat with this local id int
+            open_chat_with_local_id(public_key_local_id_int);
         }
 }
+
+
+void dahlia_client::show_chat_history_by_addressbook_db_id(QModelIndex cell){
+    /** Attempt to get the addressbook_db_id from the selected
+     ** cells' row.
+     **/
+
+    QModelIndex addressbook_db_id_cell = dahlia_jungle_recip_recent_history_tableview_itemmodel->index(cell.row(), 3, QModelIndex());
+    int addressbook_db_id = addressbook_db_id_cell.data().toInt();
+
+    //Set chat history browser to this addressbook_db_id
+        //TODO
+
+    //Load chat history to this reciepient.
+        //TODO
+}
+
 
 void dahlia_client::boot_new_identity_btn_clicked(){
     int generation_successfull = 0;
